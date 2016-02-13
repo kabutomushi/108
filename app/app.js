@@ -28,22 +28,21 @@ exports.fb = function(obj) {
 
         // object_idがある投稿のみ
         postData = postData.filter(function(x) {
-          return typeof x.object_id !== 'undefined' && x.type !== 'video';
+          return typeof x.object_id !== 'undefined' &&
+            x.type !== 'video';
         });
 
         // data整形
         async.map(postData, function(x, cb) {
 
           FB.api('/' + x.object_id, {
-            fields: ['images']
+            fields: ['images', 'name']
           }, function(res) {
 
             var image = [],
               text = '';
 
-            resCount++;
-
-            if (resCount >= postData.length || resCount > responseLimit) {
+            if (resCount >= postData.length || resCount >= responseLimit) {
               // 規定の件数を超えていたら中断。この後のmap callbackは全部なかったことに
               return cb(true);
             }
@@ -52,11 +51,14 @@ exports.fb = function(obj) {
               image = filterImageData(res.images);
             }
 
-            if (typeof x.description !== 'undefined') {
+            if (typeof res.name !== 'undefined') {
+              text = res.name;
+            } else if (typeof x.description !== 'undefined') {
               text = x.description;
             }
 
             if (typeof image[0] !== 'undefined') {
+              resCount++;
               return cb(null, {
                 image: image[0].source,
                 text: text
