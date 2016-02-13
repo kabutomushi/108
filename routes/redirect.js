@@ -69,7 +69,8 @@ function fetchPostsAndAnalyze() {
             host: config.server.hostname
           });
 
-          if (sum > 20) {
+          // レベル決める
+          if (sum > 24) {
             level = 3;
           } else if (sum > 10) {
             level = 2;
@@ -104,8 +105,8 @@ function fetchPostsAndAnalyze() {
 
           /* make the API call */
           FB.api("/me/feed", "POST", {
-            //"message": "これがワン・オー・エイトによって発見された私の煩悩です。",
-            "message": "This is a test message",
+            "message": "これがワン・オー・エイトによって発見された私の煩悩です。",
+            //"message": "This is a test message",
             "link": max.link
           }, function (response) {
             if (response && !response.error) {
