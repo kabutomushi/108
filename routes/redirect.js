@@ -55,10 +55,10 @@ function fetchPostsAndAnalyze() {
         var client = redis.createClient({
           host: config.server.hostname
         });
-        client.set('bnData', {
+        client.set('bnData', JSON.stringify({
           id: 123,
           data: results
-        }, function(err) {
+        }), function(err) {
           if (err) {
             console.log("Failed to set bnData for " + id, err);
           }
