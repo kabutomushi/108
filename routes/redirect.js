@@ -37,7 +37,7 @@ router.get('/', function(req, res, next) {
         var publisher = redis.createClient({
           host: config.server.hostname
         });
-        publisher.publish('bnStart', function(err) {
+        publisher.publish('bnStart', "dummyMessage", function(err) {
           if(err) {
             console.log('Failed to notify bnStart', err);
           }
