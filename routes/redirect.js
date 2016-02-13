@@ -2,6 +2,7 @@ var FB = require('fb'),
   appFb = require('../app/app').fb,
   config = require('../config/config'),
   request = require('request'),
+  util = require('util'),
   analyze = require('../lib/analyze');
 
 var express = require('express'),
@@ -46,7 +47,7 @@ function fetchPostsAndAnalyze() {
     if (!err) {
       console.log(res);
       analyze(res, function(err, results) {
-        console.log(res);
+        console.log(util.inspect(results));
         //TODO: ここでredis に set + notify
       });
     }
