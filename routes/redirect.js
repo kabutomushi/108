@@ -35,7 +35,7 @@ router.get('/', function(req, res, next) {
 
         fetchPostsAndAnalyze(); // async
 
-        res.send('success');
+        res.redirect('/ok');
       });
   }
 });
