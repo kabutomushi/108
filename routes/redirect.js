@@ -34,7 +34,7 @@ router.get('/', function(req, res, next) {
 
         FB.setAccessToken(json.access_token);
 
-        var publisher = redis.createclient({
+        var publisher = redis.createClient({
           host: config.server.hostname
         });
         publisher.publish('bnStart', function(err) {
@@ -74,10 +74,10 @@ function fetchPostsAndAnalyze() {
           var id = Math.floor(Math.random() * 1000000);
           var level = 1;
 
-          var client = redis.createclient({
+          var client = redis.createClient({
             host: config.server.hostname
           });
-          var publisher = redis.createclient({
+          var publisher = redis.createClient({
             host: config.server.hostname
           });
 
