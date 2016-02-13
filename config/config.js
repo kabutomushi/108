@@ -1,4 +1,4 @@
-module.export = {
+module.exports = {
     facebook: {
         appId: "REPLACE",
         appSecret: "REPLACE"
