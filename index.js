@@ -1,15 +1,12 @@
 //var app = require('./app/app.js');
 
-var express = require('express')
-var app = express()
+var express = require('express'),
+  app = express(),
+  oauth = require('./routes/oauth'),
+  redirect = require('./routes/redirect');
 
-app.get('/', function (req, res) {
-  res.send('Hello World')
-});
-
-app.get('/oauth', function(req, res) {
-  res.send('oauth endpoint');
-});
+app.use('/oauth', oauth);
+app.use('/redirect', redirect);
 
 app.listen(3000)
 

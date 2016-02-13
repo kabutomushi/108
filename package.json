@@ -18,10 +18,9 @@
   "homepage": "https://github.com/kabutomushi/108#readme",
   "dependencies": {
     "async": "^1.5.2",
+    "express": "4.13.4",
     "fb": "1.0.2",
-    "request": "^2.69.0",
     "temp": "~0.8.3",
-    "watson-developer-cloud": "^1.2.2",
-    "express": "4.13.4"
+    "watson-developer-cloud": "^1.2.2"
   }
 }
