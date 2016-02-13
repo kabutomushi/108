@@ -47,7 +47,7 @@ function fetchPostsAndAnalyze() {
     if (!err) {
       console.log(res);
       analyze(res, function(err, results) {
-        console.log(util.inspect(results));
+        console.log(util.inspect(results, {showHidden: false, depth: null}));
         //TODO: ここでredis に set + notify
       });
     }
