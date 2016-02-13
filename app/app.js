@@ -43,8 +43,8 @@ exports.fb = function(obj) {
 
             resCount++;
 
-            if (resCount >= postData.length || resCount == responseLimit) {
-              // 規定の件数を超えていたら中断
+            if (resCount >= postData.length || resCount > responseLimit) {
+              // 規定の件数を超えていたら中断。この後のmap callbackは全部なかったことに
               return cb(true);
             }
 
@@ -57,14 +57,21 @@ exports.fb = function(obj) {
             }
 
             if (typeof image[0] !== 'undefined') {
-              cb(null, {
+              return cb(null, {
                 image: image[0].source,
                 text: text
               });
             }
 
+            // 対応してないものはundef
+            return cb(null);
+
           });
         }, function(err, results) {
+          // ここでundefを除外
+          results = results.filter(function(x) {
+            return x;
+          });
           callback(createCallbackObj(id, name, gender, results), false);
         });
       });
