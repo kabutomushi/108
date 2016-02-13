@@ -10,17 +10,19 @@ app.fb().me(function(res, err) {
       posts = [],
       postData = res.postData;
 
-    app.fb().formatPostData(postData, function(res, err) {
+    app.fb().formatPostData(postData, function(res, end, err) {
 
       if (!err) {
 
         posts.push(res);
 
-        if (posts.length === 10) {
+        if (end) {
           var results = createCallbackObj(id, name, gender, posts);
           console.log(results);
         }
 
+      } else {
+        console.log('err at formatPostData');
       }
 
     });

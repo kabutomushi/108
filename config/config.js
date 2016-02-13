@@ -1,7 +1,8 @@
 module.exports = {
     facebook: {
         appId: "REPLACE",
-        appSecret: "REPLACE"
+        appSecret: "REPLACE",
+        accessToken: "REPLACE"
     },
     oxford: {
         primaryKey: "REPLACE",

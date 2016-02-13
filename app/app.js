@@ -1,13 +1,14 @@
-var FB = require('fb');
-
-FB.setAccessToken('');
+var FB = require('fb'),
+  config = require('../config/config');
+FB.setAccessToken(config.facebook.accessToken);
 
 exports.fb = function() {
 
   return {
     me: function(callback) {
+
       FB.api('me', {
-        fields: ['id', 'name', 'gender', 'posts.limit(200){picture,description,object_id,updated_time}']
+        fields: ['id', 'name', 'gender', 'posts.limit(200){picture,description,object_id,updated_time,type}']
       }, function(res) {
 
         var err = false;
@@ -33,13 +34,14 @@ exports.fb = function() {
     },
     formatPostData: function(postData, callback) {
 
-      var err = false;
+      var err = false,
+        resCount = 0;
 
       if (postData.length > 0) {
 
         // object_idがある投稿のみ
         postData = postData.filter(function(x) {
-          return typeof x.object_id !== 'undefined';
+          return typeof x.object_id !== 'undefined' && x.type !== 'video';
         });
 
         // data整形
@@ -49,24 +51,30 @@ exports.fb = function() {
             fields: ['images']
           }, function(res) {
 
-            var image, text = '';
+            var image, text = '',
+              end = false;
 
-            image = filterImageData(res.images);
+            resCount++;
+
+            if (resCount >= postData.length) {
+              end = true;
+            }
+
+            // エラー処理
+            if (typeof res.images !== 'undefined' && res.images.length > 0) {
+              image = filterImageData(res.images);
+            }
 
             if (typeof x.description !== 'undefined') {
               text = x.description;
             }
 
-            if (typeof image[0] === 'undefined') {
-              image[0] = {
-                source: ''
-              };
+            if (typeof image[0] !== 'undefined') {
+              callback({
+                image: image[0].source,
+                text: text
+              }, end, err);
             }
-
-            callback({
-              image: image[0].source,
-              text: text
-            });
 
           });
         });
