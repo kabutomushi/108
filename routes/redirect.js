@@ -1,6 +1,6 @@
 var FB = require('fb'),
-  config = require('../config/config');
-FB.setAccessToken(config.facebook.accessToken);
+  config = require('../config/config'),
+  request = require('request');
 
 var express = require('express'),
   router = express.Router();
@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
 
   if (typeof req.query.code !== 'undefined') {
 
-    var code = req.quert.code,
+    var code = req.query.code,
       url = 'https://graph.facebook.com/v2.3/oauth/access_token?'
       + 'client_id='
       + config.facebook.appId
@@ -19,9 +19,16 @@ router.get('/', function(req, res, next) {
       + '&client_secret=' + config.facebook.appSecret
       + '&code=' + code;
 
-      res.redirect(url);
+      var options = {
+        url: url
+      };
 
-  } else if (typeof req.query.access_token !== 'undefined') {
+      request.get(options, function(error, res, body) {
+        console.log(res);
+        FB.setAccessToken(res.access_token);
+      });
+  }
+  /* else if (typeof req.query.access_token !== 'undefined') {
 
     FB.setAccessToken(req.query.access_token);
 
@@ -30,7 +37,7 @@ router.get('/', function(req, res, next) {
     res.send('success');
   } else {
     // error
-  }
+  }*/
 });
 
 module.exports = router;
