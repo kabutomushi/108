@@ -24,20 +24,13 @@ router.get('/', function(req, res, next) {
       };
 
       request.get(options, function(error, res, body) {
-        console.log(res);
-        FB.setAccessToken(res.access_token);
+        var json = JSON.parse(body);
+
+        FB.setAccessToken(json.access_token);
+
+        res.send('success');
       });
   }
-  /* else if (typeof req.query.access_token !== 'undefined') {
-
-    FB.setAccessToken(req.query.access_token);
-
-    console.log(req.query.access_token);
-
-    res.send('success');
-  } else {
-    // error
-  }*/
 });
 
 module.exports = router;
