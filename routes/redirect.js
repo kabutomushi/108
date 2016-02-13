@@ -1,4 +1,5 @@
 var FB = require('fb'),
+  async = require('async'),
   appFb = require('../app/app').fb,
   config = require('../config/config'),
   redis = require('redis'),
@@ -48,7 +49,7 @@ function fetchPostsAndAnalyze() {
     if (!err) {
       analyze(res, function(err, results) {
         // for debugging
-        console.log(util.inspect(results, {showHidden: false, depth: null}));
+        //console.log(util.inspect(results, {showHidden: false, depth: null}));
 
         var max = null, sum = 0;
         async.each(results, function(item, cb) {
@@ -74,12 +75,16 @@ function fetchPostsAndAnalyze() {
             level = 2;
           }
 
-          client.set('bnData', JSON.stringify({
+          var redisJson = JSON.stringify({
             id: id,
             score: sum,
             level: level,
             max: max
-          }), function(err) {
+          });
+
+          console.log(redisJson);
+
+          client.set('bnData', redisJson, function(err) {
             if (err) {
               console.log("Failed to set bnData for " + id, err);
             }
@@ -91,7 +96,7 @@ function fetchPostsAndAnalyze() {
             }
           });
 
-          client.set('id' + id, function(err) {
+          client.set('id' + id, redisJson, function(err) {
             if(err) {
               console.log('Failed to set data for id:'+ id, err);
             }
