@@ -7,6 +7,7 @@ var FB = require('fb'),
   util = require('util'),
   analyze = require('../lib/analyze');
 
+
 var express = require('express'),
   router = express.Router();
 
@@ -32,6 +33,16 @@ router.get('/', function(req, res, next) {
         var json = JSON.parse(body);
 
         FB.setAccessToken(json.access_token);
+
+        var publisher = redis.createclient({
+          host: config.server.hostname
+        });
+        publisher.publish('bnStart', function(err) {
+          if(err) {
+            console.log('Failed to notify bnStart', err);
+          }
+          publisher.end();
+        });
 
         fetchPostsAndAnalyze(); // async
 
@@ -62,10 +73,11 @@ function fetchPostsAndAnalyze() {
 
           var id = Math.floor(Math.random() * 1000000);
           var level = 1;
-          var client = redis.createClient({
+
+          var client = redis.createclient({
             host: config.server.hostname
           });
-          var publisher = redis.createClient({
+          var publisher = redis.createclient({
             host: config.server.hostname
           });
 
