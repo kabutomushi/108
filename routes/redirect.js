@@ -106,7 +106,7 @@ function fetchPostsAndAnalyze() {
           FB.api("/me/feed", "POST", {
             //"message": "これがワン・オー・エイトによって発見された私の煩悩です。",
             "message": "This is a test message",
-            "link": results[0].link
+            "link": max.link
           }, function (response) {
             if (response && !response.error) {
               //TODO
