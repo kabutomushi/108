@@ -2,6 +2,7 @@
 
 var express = require('express'),
   app = express(),
+  ok = require('./routes/ok'),
   oauth = require('./routes/oauth'),
   config = require('./config/config'),
   redirect = require('./routes/redirect'),
@@ -9,6 +10,7 @@ var express = require('express'),
   subscriber,
   redisClient;
 
+app.use('/ok', ok);
 app.use('/oauth', oauth);
 app.use('/redirect', redirect);
 
