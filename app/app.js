@@ -11,7 +11,7 @@ exports.fb = function(obj) {
     me: function(callback) {
 
       FB.api('me', {
-        fields: ['id', 'name', 'gender', 'posts.limit(' + postsLimit + '){picture,description,object_id,updated_time,type}']
+        fields: ['id', 'name', 'gender', 'posts.limit(' + postsLimit + '){picture,description,object_id,updated_time,type,link}']
       }, function(res) {
 
         if (!res || res.error) {
@@ -60,7 +60,7 @@ exports.fb = function(obj) {
             if (typeof image[0] !== 'undefined') {
               resCount++;
               return cb(null, {
-                id: x.id,
+                link: x.link,
                 image: image[0].source,
                 text: text
               });

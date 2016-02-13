@@ -74,7 +74,7 @@ function fetchPostsAndAnalyze() {
           "POST",
           {
             "message": "This is a test message",
-            "link": results[0].id
+            "link": results[0].link
           },
           function (response) {
             if (response && !response.error) {
