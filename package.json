@@ -1,0 +1,22 @@
+{
+  "name": "108",
+  "version": "1.0.0",
+  "description": "hackday2016",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kabutomushi/108.git"
+  },
+  "author": "kabutomushi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kabutomushi/108/issues"
+  },
+  "homepage": "https://github.com/kabutomushi/108#readme",
+  "dependencies": {
+    "fb": "1.0.2"
+  }
+}
