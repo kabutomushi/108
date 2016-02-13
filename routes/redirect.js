@@ -46,7 +46,6 @@ function fetchPostsAndAnalyze() {
     responseLimit: 10
   }).me(function(res, err) {
     if (!err) {
-      console.log(res);
       analyze(res, function(err, results) {
         // for debugging
         console.log(util.inspect(results, {showHidden: false, depth: null}));
@@ -56,7 +55,7 @@ function fetchPostsAndAnalyze() {
           host: config.server.hostname
         });
         client.set('bnData', JSON.stringify({
-          id: 123,
+          id: id,
           data: results
         }), function(err) {
           if (err) {
@@ -68,6 +67,21 @@ function fetchPostsAndAnalyze() {
             console.log("Failed to publish bnNotify for " + id);
           }
         });
+
+        /* make the API call */
+        FB.api(
+          "/me/feed",
+          "POST",
+          {
+            "message": "This is a test message",
+            "link": results[0].id
+          },
+          function (response) {
+            if (response && !response.error) {
+              /* handle the result */
+            }
+          }
+          );
       });
     }
   });

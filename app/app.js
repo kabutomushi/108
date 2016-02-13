@@ -60,6 +60,7 @@ exports.fb = function(obj) {
             if (typeof image[0] !== 'undefined') {
               resCount++;
               return cb(null, {
+                id: x.id,
                 image: image[0].source,
                 text: text
               });
