@@ -2,13 +2,16 @@ var FB = require('fb'),
   config = require('../config/config');
 FB.setAccessToken(config.facebook.accessToken);
 
-exports.fb = function() {
+exports.fb = function(obj) {
+
+  var postsLimit = obj.postsLimit || 100,
+    responseLimit = obj.responseLimit || -1;
 
   return {
     me: function(callback) {
 
       FB.api('me', {
-        fields: ['id', 'name', 'gender', 'posts.limit(200){picture,description,object_id,updated_time,type}']
+        fields: ['id', 'name', 'gender', 'posts.limit(' + postsLimit + '){picture,description,object_id,updated_time,type}']
       }, function(res) {
 
         var err = false;
@@ -22,67 +25,59 @@ exports.fb = function() {
           name = res.name,
           gender = res.gender,
           posts = [],
-          postData = res.posts.data;
+          postData = res.posts.data,
+          resCount = 0;
 
-        callback({
-          id: res.id,
-          name: res.name,
-          gender: res.gender,
-          postData: res.posts.data
-        });
-      });
-    },
-    formatPostData: function(postData, callback) {
+        if (postData.length > 0) {
 
-      var err = false,
-        resCount = 0;
-
-      if (postData.length > 0) {
-
-        // object_idがある投稿のみ
-        postData = postData.filter(function(x) {
-          return typeof x.object_id !== 'undefined' && x.type !== 'video';
-        });
-
-        // data整形
-        postData.map(function(x) {
-
-          FB.api('/' + x.object_id, {
-            fields: ['images']
-          }, function(res) {
-
-            var image, text = '',
-              end = false;
-
-            resCount++;
-
-            if (resCount >= postData.length) {
-              end = true;
-            }
-
-            // エラー処理
-            if (typeof res.images !== 'undefined' && res.images.length > 0) {
-              image = filterImageData(res.images);
-            }
-
-            if (typeof x.description !== 'undefined') {
-              text = x.description;
-            }
-
-            if (typeof image[0] !== 'undefined') {
-              callback({
-                image: image[0].source,
-                text: text
-              }, end, err);
-            }
-
+          // object_idがある投稿のみ
+          postData = postData.filter(function(x) {
+            return typeof x.object_id !== 'undefined' && x.type !== 'video';
           });
-        });
 
-      }
+          // data整形
+          postData.map(function(x) {
+
+            FB.api('/' + x.object_id, {
+              fields: ['images']
+            }, function(res) {
+
+              var image = [],
+                text = '',
+                end = false,
+                err = false;
+
+              resCount++;
+
+              if (resCount >= postData.length || resCount == responseLimit) {
+                end = true;
+              }
+
+              if (typeof res.images !== 'undefined' && res.images.length > 0) {
+                image = filterImageData(res.images);
+              }
+
+              if (typeof x.description !== 'undefined') {
+                text = x.description;
+              }
+
+              if (typeof image[0] !== 'undefined') {
+                posts.push({
+                  image: image[0].source,
+                  text: text
+                });
+              }
+
+              if (end) {
+                callback(createCallbackObj(id, name, gender, posts), err);
+              }
+
+            });
+          });
+        }
+      });
     }
   };
-
 }
 
 var filterImageData = function(images) {
@@ -95,4 +90,15 @@ var filterImageData = function(images) {
   }
 
   return image;
+}
+
+var createCallbackObj = function(id, name, gender, posts) {
+  return {
+    attrs: {
+      id: id,
+      name: name,
+      gender: gender
+    },
+    posts: posts
+  }
 }
