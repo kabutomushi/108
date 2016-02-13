@@ -50,39 +50,64 @@ function fetchPostsAndAnalyze() {
         // for debugging
         console.log(util.inspect(results, {showHidden: false, depth: null}));
 
-        var id = Math.floor(Math.random() * 1000000);
-        var client = redis.createClient({
-          host: config.server.hostname
-        });
-        client.set('bnData', JSON.stringify({
-          id: id,
-          data: results
-        }), function(err) {
-          if (err) {
-            console.log("Failed to set bnData for " + id, err);
+        var max = null, sum = 0;
+        async.each(results, function(item, cb) {
+          sum += item.score;
+          if (!max || max.score < item.score) {
+            max = item;
           }
-        });
-        client.publish('bnNotify', id, function(err) {
-          if (err) {
-            console.log("Failed to publish bnNotify for " + id);
-          }
-        });
+          cb();
+        }, function() {
 
-        /* make the API call */
-        FB.api(
-          "/me/feed",
-          "POST",
-          {
+          var id = Math.floor(Math.random() * 1000000);
+          var level = 1;
+          var client = redis.createClient({
+            host: config.server.hostname
+          });
+          var publisher = redis.createClient({
+            host: config.server.hostname
+          });
+
+          if (sum > 20) {
+            level = 3;
+          } else if (sum > 10) {
+            level = 2;
+          }
+
+          client.set('bnData', JSON.stringify({
+            id: id,
+            score: sum,
+            level: level,
+            max: max
+          }), function(err) {
+            if (err) {
+              console.log("Failed to set bnData for " + id, err);
+            }
+          });
+
+          publisher.publish('bnNotify', id, function(err) {
+            if (err) {
+              console.log("Failed to publish bnNotify for " + id);
+            }
+          });
+
+          client.set('id' + id, function(err) {
+            if(err) {
+              console.log('Failed to set data for id:'+ id, err);
+            }
+          })
+
+          /* make the API call */
+          FB.api("/me/feed", "POST", {
             //"message": "これがワン・オー・エイトによって発見された私の煩悩です。",
             "message": "This is a test message",
             "link": results[0].link
-          },
-          function (response) {
+          }, function (response) {
             if (response && !response.error) {
-              /* handle the result */
+              //TODO
             }
-          }
-          );
+          });
+        });
       });
     }
   });
