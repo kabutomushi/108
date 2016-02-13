@@ -1,6 +1,8 @@
 var FB = require('fb'),
+  appFb = require('../app/app').fb,
   config = require('../config/config'),
-  request = require('request');
+  request = require('request'),
+  analyze = require('../lib/analyze');
 
 var express = require('express'),
   router = express.Router();
@@ -28,9 +30,27 @@ router.get('/', function(req, res, next) {
 
         FB.setAccessToken(json.access_token);
 
+        fetchPostsAndAnalyze(); // async
+
         res.send('success');
       });
   }
 });
+
+
+function fetchPostsAndAnalyze() {
+  appFb({
+    postsLimit: 100,
+    responseLimit: 10
+  }).me(function(res, err) {
+    if (!err) {
+      console.log(res);
+      analyze(res, function(err, results) {
+        console.log(res);
+        //TODO: ここでredis に set + notify
+      });
+    }
+  });
+}
 
 module.exports = router;

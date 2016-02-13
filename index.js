@@ -73,8 +73,7 @@ function removeFromRedis(callback) {
   });
 }
 
-/*
-app.fb({
+require('./app/app').fb({
   postsLimit: 200,
   responseLimit: 10
 }).me(function(res, err) {
@@ -82,4 +81,3 @@ app.fb({
     console.log(res);
   }
 });
-*/
