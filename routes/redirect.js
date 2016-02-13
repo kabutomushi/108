@@ -1,6 +1,7 @@
 var FB = require('fb'),
   appFb = require('../app/app').fb,
   config = require('../config/config'),
+  redis = require('redis'),
   request = require('request'),
   util = require('util'),
   analyze = require('../lib/analyze');
@@ -47,8 +48,26 @@ function fetchPostsAndAnalyze() {
     if (!err) {
       console.log(res);
       analyze(res, function(err, results) {
+        // for debugging
         console.log(util.inspect(results, {showHidden: false, depth: null}));
-        //TODO: ここでredis に set + notify
+
+        var id = Math.floor(Math.random() * 1000000);
+        var client = redis.createClient({
+          host: config.server.hostname
+        });
+        client.set('bnData', {
+          id: 123,
+          data: results
+        }, function(err) {
+          if (err) {
+            console.log("Failed to set bnData for " + id, err);
+          }
+        });
+        client.publish('bnNotify', id, function(err) {
+          if (err) {
+            console.log("Failed to publish bnNotify for " + id);
+          }
+        });
       });
     }
   });
