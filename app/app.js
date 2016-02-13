@@ -32,7 +32,7 @@ exports.fb = function(obj) {
         });
 
         // data整形
-        async.mapLimit(postData, responseLimit, function(x, cb) {
+        async.map(postData, function(x, cb) {
 
           FB.api('/' + x.object_id, {
             fields: ['images']
@@ -42,6 +42,11 @@ exports.fb = function(obj) {
               text = '';
 
             resCount++;
+
+            if (resCount >= postData.length || resCount == responseLimit) {
+              // 規定の件数を超えていたら中断
+              return cb(true);
+            }
 
             if (typeof res.images !== 'undefined' && res.images.length > 0) {
               image = filterImageData(res.images);
