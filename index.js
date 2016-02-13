@@ -72,12 +72,3 @@ function removeFromRedis(callback) {
     callback(err);
   });
 }
-
-require('./app/app').fb({
-  postsLimit: 200,
-  responseLimit: 10
-}).me(function(res, err) {
-  if (!err) {
-    console.log(res);
-  }
-});

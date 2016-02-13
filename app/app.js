@@ -1,6 +1,6 @@
 var FB = require('fb'),
+  async = require('async'),
   config = require('../config/config');
-FB.setAccessToken(config.facebook.accessToken);
 
 exports.fb = function(obj) {
 
@@ -14,11 +14,9 @@ exports.fb = function(obj) {
         fields: ['id', 'name', 'gender', 'posts.limit(' + postsLimit + '){picture,description,object_id,updated_time,type}']
       }, function(res) {
 
-        var err = false;
         if (!res || res.error) {
           console.log(!res ? 'error occurred' : res.error);
-          err = true;
-          callback(res, err);
+          callback(res, true);
         }
 
         var id = res.id,
@@ -28,53 +26,47 @@ exports.fb = function(obj) {
           postData = res.posts.data,
           resCount = 0;
 
-        if (postData.length > 0) {
+        // object_idがある投稿のみ
+        postData = postData.filter(function(x) {
+          return typeof x.object_id !== 'undefined' && x.type !== 'video';
+        });
 
-          // object_idがある投稿のみ
-          postData = postData.filter(function(x) {
-            return typeof x.object_id !== 'undefined' && x.type !== 'video';
+        // data整形
+        async.map(postData, function(x, cb) {
+
+          FB.api('/' + x.object_id, {
+            fields: ['images']
+          }, function(res) {
+
+            var image = [],
+              text = '';
+
+            resCount++;
+
+            if (resCount >= postData.length || resCount == responseLimit) {
+              // 規定の件数を超えていたら中断
+              return cb(true);
+            }
+
+            if (typeof res.images !== 'undefined' && res.images.length > 0) {
+              image = filterImageData(res.images);
+            }
+
+            if (typeof x.description !== 'undefined') {
+              text = x.description;
+            }
+
+            if (typeof image[0] !== 'undefined') {
+              cb(null, {
+                image: image[0].source,
+                text: text
+              });
+            }
+
           });
-
-          // data整形
-          postData.map(function(x) {
-
-            FB.api('/' + x.object_id, {
-              fields: ['images']
-            }, function(res) {
-
-              var image = [],
-                text = '',
-                end = false,
-                err = false;
-
-              resCount++;
-
-              if (resCount >= postData.length || resCount == responseLimit) {
-                end = true;
-              }
-
-              if (typeof res.images !== 'undefined' && res.images.length > 0) {
-                image = filterImageData(res.images);
-              }
-
-              if (typeof x.description !== 'undefined') {
-                text = x.description;
-              }
-
-              if (typeof image[0] !== 'undefined') {
-                posts.push({
-                  image: image[0].source,
-                  text: text
-                });
-              }
-
-              if (end) {
-                callback(createCallbackObj(id, name, gender, posts), err);
-              }
-
-            });
-          });
-        }
+        }, function(err, results) {
+          callback(createCallbackObj(id, name, gender, results), false);
+        });
       });
     }
   };
