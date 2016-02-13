@@ -23,7 +23,7 @@ router.get('/', function(req, res, next) {
         url: url
       };
 
-      request.get(options, function(error, res, body) {
+      request.get(options, function(error, response, body) {
         var json = JSON.parse(body);
 
         FB.setAccessToken(json.access_token);
